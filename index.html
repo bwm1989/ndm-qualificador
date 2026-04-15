@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NDM · Qualificador de Leads</title>
+<style>
+/* ─── RESET & BASE ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  background: #f0ede8;
+  color: #1a1a2e;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ─── VARIABLES ─────────────────────────────────────────────────── */
+:root {
+  --navy:     #1a365d;
+  --navy-mid: #234880;
+  --navy-lt:  #2d5a9e;
+  --gold:     #c9a84c;
+  --gold-lt:  #e8c96a;
+  --gold-dim: #8a6e28;
+  --cream:    #f0ede8;
+  --paper:    #faf9f7;
+  --border:   #d8d3cb;
+  --muted:    #7a7670;
+  --de-clr:   #2563a8;
+  --st-clr:   #b07d1a;
+  --fu-clr:   #1a7a4a;
+  --de-bg:    #eaf1fb;
+  --st-bg:    #fdf7e8;
+  --fu-bg:    #e8f7ef;
+  --radius:   10px;
+  --shadow:   0 2px 12px rgba(26,54,93,.10);
+  --shadow-lg:0 8px 32px rgba(26,54,93,.14);
+}
+
+/* ─── HEADER ────────────────────────────────────────────────────── */
+.hdr {
+  background: var(--navy);
+  color: white;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,.25);
+}
+.hdr-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hdr-logo {
+  width: 32px; height: 32px;
+  border: 1.5px solid var(--gold);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; letter-spacing: .5px;
+  color: var(--gold);
+  font-family: 'Georgia', serif;
+}
+.hdr-title {
+  font-size: 14px; font-weight: 600; letter-spacing: .3px;
+  color: rgba(255,255,255,.95);
+}
+.hdr-sub {
+  font-size: 11px; color: rgba(255,255,255,.45);
+  letter-spacing: .8px; text-transform: uppercase;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+.hdr-badge {
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--gold); border: 1px solid rgba(201,168,76,.35);
+  padding: 3px 8px; border-radius: 20px;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+
+/* ─── LAYOUT ────────────────────────────────────────────────────── */
+.shell { max-width: 760px; margin: 0 auto; padding: 24px 16px 60px; }
+
+/* ─── TABS ──────────────────────────────────────────────────────── */
+.tabs-bar {
+  display: flex; gap: 2px;
+  background: var(--navy);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.tab-btn {
+  flex: 1; padding: 9px 0;
+  border: none; background: transparent;
+  color: rgba(255,255,255,.5);
+  font-family: 'Trebuchet MS', sans-serif;
+  font-size: 12px; font-weight: 600; letter-spacing: .6px;
+  text-transform: uppercase; cursor: pointer;
+  border-radius: 8px;
+  transition: all .2s;
+}
+.tab-btn:hover { color: rgba(255,255,255,.8); background: rgba(255,255,255,.06); }
+.tab-btn.on {
+  background: var(--gold);
+  color: var(--navy);
+}
+.tab-pane { display: none; }
+.tab-pane.on { display: block; animation: fadeUp .25s ease; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── STEPPER ───────────────────────────────────────────────────── */
+.stepper {
+  display: flex; align-items: center; justify-content: center;
+  gap: 0; margin-bottom: 24px;
+}
+.stp {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 600; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--muted);
+  font-family: 'Trebuchet MS', sans-serif;
+  transition: color .3s;
+}
+.stp.on  { color: var(--navy); }
+.stp.done { color: var(--fu-clr); }
+.stp-n {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; background: var(--border); color: var(--muted);
+  transition: all .3s; flex-shrink: 0;
+}
+.stp.on  .stp-n { background: var(--navy); color: white; }
+.stp.done .stp-n { background: var(--fu-clr); color: white; font-size: 13px; }
+.stp-line { width: 48px; height: 1px; background: var(--border); margin: 0 4px; transition: background .3s; }
+.stp-line.done { background: var(--fu-clr); }
+@media(max-width:480px) { .stp span:last-child { display:none; } .stp-line { width:24px; } }
+
+/* ─── CARD ──────────────────────────────────────────────────────── */
+.card {
+  background: var(--paper);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 20px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.card-head {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 18px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.card-head-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.card-head-title {
+  font-size: 14px; font-weight: 700; color: var(--navy);
+  letter-spacing: .2px;
+}
+.card-head-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+/* ─── FORM ELEMENTS ─────────────────────────────────────────────── */
+.fg { margin-bottom: 16px; }
+.fg:last-child { margin-bottom: 0; }
+.fg label {
+  display: block;
+  font-size: 12px; font-weight: 700; letter-spacing: .4px;
+  text-transform: uppercase; color: var(--navy);
+  margin-bottom: 6px;
+  font-family: 'Trebuchet MS', sans-serif;
+}
+.fg .hint { font-size: 11px; color: var(--muted); margin-bottom: 6px; font-family: 'Trebuchet MS', sans-serif; }
+
+input[type=text], textarea, select {
+  width: 100%; padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 14px; font-family: 'Georgia', serif;
+  color: var(--navy); background: white;
+  transition: border-color .2s, box-shadow .2s;
+  appearance: none;
+}
+input[type=text]:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--navy-lt);
+  box-shadow: 0 0 0 3px rgba(45,90,158,.12);
+}
+textarea { resize: vertical; min-height: 90px; line-height: 1.55; }
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%231a365d' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+/* ─── OPTION CARDS ──────────────────────────────────────────────── */
+.opts { display: flex; flex-direction: column; gap: 6px; }
+.opt-card {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px; cursor: pointer;
+  background: white;
+  transition: all .18s;
+  user-select: none;
+}
+.opt-card:hover { border-color: var(--navy-lt); background: #f4f7fc; }
+.opt-card.sel { border-color: var(--navy); background: #eef3fb; box-shadow: 0 0 0 1px var(--navy); }
+.opt-card input { display: none; }
+.opt-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--border);
+  flex-shrink: 0; margin-top: 2px;
+  transition: all .18s;
+  background: white;
+}
+.opt-card.sel .opt-dot { border-color: var(--navy); background: var(--navy); box-shadow: inset 0 0 0 3px white; }
+.opt-lbl { font-size: 13px; font-weight: 600; color: var(--navy); }
+.opt-desc { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: 'Trebuchet MS', sans-serif; }
+
+.q-block {
+  border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; margin-bottom: 12px;
+}
+.q-block:last-child { margin-bottom: 0; }
+.q-head {
+  background: var(--navy); color: rgba(255,255,255,.9);
+  padding: 10px 14px;
+  font-size: 12px; font-weight: 700; letter-spacing: .3px;
+  display: flex; align-items: center; gap: 8px;
+}
+.q-num {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(201,168,76,.25); color: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 800; flex-shrink: 0;
+}
+.q-body { padding: 12px; background: white; }
+
+/* ─── BUTTONS ───────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; padding: 11px 22px;
+  border: none; border-radius: 8px;
+  font-family: 'Trebuchet MS', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: .4px;
+  cursor: pointer; transition: all .18s;
+}
+.btn-primary {
+  background: var(--navy); color: white;
+  width: 100%;
+  box-shadow: 0 2px 8px rgba(26,54,93,.25);
+}
+.btn-primary:hover { background: var(--navy-mid); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(26,54,93,.3); }
+.btn-primary:active { transform: translateY(0); }
+.btn-secondary {
+  background: white; color: var(--navy);
+  border: 1.5px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--navy); background: #f4f7fc; }
+.btn-row { display: flex; gap: 10px; }
+.btn-row .btn-secondary { flex: 0 0 auto; }
+.btn-row .btn-primary { flex: 1; }
+
+.btn-copy {
+  font-family: 'Trebuchet MS', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  padding: 5px 12px;
+  background: transparent; color: var(--navy);
+  border: 1.5px solid var(--navy);
+  border-radius: 6px; cursor: pointer;
+  transition: all .15s;
+  text-transform: uppercase;
+}
+.btn-copy:hover { background: var(--navy); color: white; }
+.btn-copy.copied { background: var(--fu-clr); color: white; border-color: var(--fu-clr); }
+
+/* ─── RESULT BADGE ──────────────────────────────────────────────── */
+.res-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 20px;
+  font-family: 'Trebuchet MS', sans-serif;
+  font-size: 12px; font-weight: 700; letter-spacing: .6px;
+  text-transform: uppercase;
+}
+.badge-de  { background: var(--de-bg); color: var(--de-clr); border: 1px solid #bdd4f0; }
+.badge-st  { background: var(--st-bg); color: var(--st-clr); border: 1px solid #e8d090; }
+.badge-fu  { background: var(--fu-bg); color: var(--fu-clr); border: 1px solid #9ad4ba; }
+
+/* ─── SCORE METER ───────────────────────────────────────────────── */
+.score-wrap {
+  margin: 16px 0; padding: 14px;
+  background: var(--cream); border-radius: 8px;
+}
+.score-labels {
+  display: flex; justify-content: space-between;
+  font-size: 10px; font-weight: 700; letter-spacing: .8px;
+  text-transform: uppercase; color: var(--muted);
+  font-family: 'Trebuchet MS', sans-serif;
+  margin-bottom: 6px;
+}
+.score-bar {
+  height: 8px; background: var(--border); border-radius: 4px;
+  overflow: hidden;
+}
+.score-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--de-clr) 0%, var(--st-clr) 50%, var(--fu-clr) 100%);
+  transition: width .6s cubic-bezier(.34,1.56,.64,1);
+}
+
+/* ─── FRAMEWORK TABLE ───────────────────────────────────────────── */
+.fw-table { width: 100%; border-collapse: collapse; font-size: 12px; margin: 12px 0; }
+.fw-table th {
+  background: var(--navy); color: rgba(255,255,255,.85);
+  padding: 8px 10px; text-align: left;
+  font-family: 'Trebuchet MS', sans-serif;
+  font-weight: 600; letter-spacing: .3px;
+  font-size: 11px;
+}
+.fw-table th:first-child { border-radius: 7px 0 0 0; width: 22px; }
+.fw-table th:last-child  { border-radius: 0 7px 0 0; }
+.fw-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.fw-table tr:last-child td { border-bottom: none; }
+.fw-table tr:nth-child(even) td { background: var(--cream); }
+.sig-de { color: var(--de-clr); font-weight: 600; }
+.sig-st { color: var(--st-clr); font-weight: 600; }
+.sig-fu { color: var(--fu-clr); font-weight: 600; }
+
+/* ─── RESULT SECTIONS ───────────────────────────────────────────── */
+.res-sec { padding: 12px 0; border-bottom: 1px solid var(--border); }
+.res-sec:last-child { border-bottom: none; padding-bottom: 0; }
+.res-sec-title {
+  font-size: 11px; font-weight: 700; letter-spacing: .6px;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 5px; font-family: 'Trebuchet MS', sans-serif;
+}
+.res-sec-body { font-size: 13px; color: #2a2a3e; line-height: 1.55; }
+
+/* ─── COPY AREA ─────────────────────────────────────────────────── */
+.copy-wrap {
+  background: #f5f3ef; border: 1px solid var(--border);
+  border-radius: 8px; padding: 14px;
+  position: relative; margin: 10px 0;
+}
+.copy-wrap pre {
+  white-space: pre-wrap; word-wrap: break-word;
+  font-family: 'Georgia', serif; font-size: 13px;
+  color: #2a2a3e; line-height: 1.6;
+  padding-right: 70px;
+}
+.copy-wrap .btn-copy { position: absolute; top: 10px; right: 10px; }
+
+/* ─── PRODUCTS TABLE ────────────────────────────────────────────── */
+.prod-section-title {
+  font-size: 11px; font-weight: 700; letter-spacing: .8px;
+  text-transform: uppercase; color: white;
+  background: var(--navy);
+  padding: 7px 12px; border-radius: 6px;
+  margin: 16px 0 8px; font-family: 'Trebuchet MS', sans-serif;
+  display: inline-block;
+}
+.prod-row {
+  display: grid; grid-template-columns: 1fr auto auto;
+  gap: 0 12px; padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.prod-row:last-child { border-bottom: none; }
+.prod-name { font-size: 13px; font-weight: 600; color: var(--navy); }
+.prod-price { font-size: 13px; font-weight: 700; color: var(--navy-lt); white-space: nowrap; }
+.prod-type { font-size: 11px; color: var(--muted); font-family: 'Trebuchet MS', sans-serif; white-space: nowrap; }
+
+.rule-card {
+  display: flex; gap: 10px; padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.rule-card:last-child { border-bottom: none; }
+.rule-dot { width: 4px; border-radius: 2px; background: var(--gold); flex-shrink: 0; margin: 3px 0; }
+.rule-title { font-size: 13px; font-weight: 700; color: var(--navy); }
+.rule-body { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: 'Trebuchet MS', sans-serif; }
+
+/* ─── HISTORY ───────────────────────────────────────────────────── */
+.hist-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--border); border-radius: 8px;
+  margin-bottom: 8px; cursor: pointer; background: white;
+  transition: all .15s;
+}
+.hist-item:hover { border-color: var(--navy); background: #f4f7fc; transform: translateX(2px); }
+.hist-name { font-size: 13px; font-weight: 700; color: var(--navy); }
+.hist-meta { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: 'Trebuchet MS', sans-serif; }
+.hist-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 13px; }
+.hist-empty strong { display: block; font-size: 15px; color: var(--navy); margin-bottom: 6px; }
+
+/* ─── REACTIVATION ALERT ────────────────────────────────────────── */
+.react-alert {
+  background: var(--st-bg); border: 1px solid #e8d090;
+  border-left: 3px solid var(--st-clr);
+  border-radius: 8px; padding: 12px 14px; margin-top: 12px;
+}
+.react-alert-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .6px;
+  text-transform: uppercase; color: var(--st-clr);
+  font-family: 'Trebuchet MS', sans-serif; margin-bottom: 4px;
+}
+.react-alert-body { font-size: 13px; color: #5a4010; }
+
+/* ─── UPSELL ARROW ──────────────────────────────────────────────── */
+.upsell-path {
+  display: flex; align-items: center; gap: 6px;
+  flex-wrap: wrap; margin-top: 6px;
+}
+.upsell-step {
+  font-size: 11px; font-weight: 700; letter-spacing: .4px;
+  font-family: 'Trebuchet MS', sans-serif;
+  padding: 4px 10px; border-radius: 20px;
+}
+.upsell-arrow { color: var(--muted); font-size: 14px; }
+.u-de { background: var(--de-bg); color: var(--de-clr); }
+.u-st { background: var(--st-bg); color: var(--st-clr); }
+.u-fu { background: var(--fu-bg); color: var(--fu-clr); }
+.u-active { box-shadow: 0 0 0 2px currentColor; }
+
+/* ─── UTILITY ───────────────────────────────────────────────────── */
+.hidden { display: none !important; }
+.btn-row-top { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+.sep { height: 1px; background: var(--border); margin: 16px 0; }
+.gold-line { width: 32px; height: 2px; background: var(--gold); margin: 6px 0 14px; border-radius: 1px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
+<header class="hdr">
+  <div class="hdr-brand">
+    <div class="hdr-logo">NDM</div>
+    <div>
+      <div class="hdr-title">Qualificador de Leads</div>
+      <div class="hdr-sub">Framework Comercial NDM</div>
+    </div>
+  </div>
+  <div class="hdr-badge">Uso Interno</div>
+</header>
+
+<!-- ═══════════════════════════ SHELL ════════════════════════════ -->
+<div class="shell">
+
+  <!-- TABS BAR -->
+  <div class="tabs-bar">
+    <button class="tab-btn on" onclick="goTab('qualify',this)">Qualificar Lead</button>
+    <button class="tab-btn" onclick="goTab('products',this)">Produtos</button>
+    <button class="tab-btn" onclick="goTab('history',this)">Histórico</button>
+  </div>
+
+  <!-- ╔══════════════╗ TAB: QUALIFICAR ════════════════════════════ -->
+  <div id="tab-qualify" class="tab-pane on">
+
+    <!-- STEPPER -->
+    <div class="stepper">
+      <div class="stp on" id="stp1"><span class="stp-n">1</span><span>Dados</span></div>
+      <div class="stp-line" id="ln1"></div>
+      <div class="stp" id="stp2"><span class="stp-n">2</span><span>Framework</span></div>
+      <div class="stp-line" id="ln2"></div>
+      <div class="stp" id="stp3"><span class="stp-n">3</span><span>Resultado</span></div>
+    </div>
+
+    <!-- ── STEP 1 ── DADOS ──────────────────────────────────────── -->
+    <div id="step1">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-icon" style="background:#eef3fb;color:var(--navy-lt);font-size:16px;">①</div>
+          <div>
+            <div class="card-head-title">Dados do Lead</div>
+            <div class="card-head-sub">Informações básicas e contexto</div>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>Nome do Contato <span style="color:#c0392b;">*</span></label>
+          <input type="text" id="f-name" placeholder="Ex: Rafael da Silva">
+        </div>
+
+        <div class="fg">
+          <label>Origem do Lead</label>
+          <select id="f-source">
+            <option value="">Selecione a origem...</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="fale-conosco">Fale Conosco</option>
+            <option value="indicacao">Indicação</option>
+            <option value="resell">ReSell</option>
+            <option value="reativacao">Reativação (lead perdido)</option>
+            <option value="upsell">Upsell (cliente D.E. existente)</option>
+          </select>
+        </div>
+
+        <div class="fg">
+          <label>Contexto do Lead <span style="color:#c0392b;">*</span></label>
+          <div class="hint">Cole aqui o e-mail, transcrição de call, mensagem de WhatsApp, anotação do Pipedrive ou qualquer informação sobre o lead</div>
+          <textarea id="f-ctx" rows="5" placeholder="Ex: Lead entrou via WhatsApp perguntando sobre revisão de contrato SaaS. Empresa tem 2 anos de operação, faturamento de R$200k/mês em processamento de pagamentos..."></textarea>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="toStep2()">Ir para o Framework →</button>
+    </div><!-- /step1 -->
+
+    <!-- ── STEP 2 ── FRAMEWORK ──────────────────────────────────── -->
+    <div id="step2" class="hidden">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-head-icon" style="background:#fdf7e8;color:var(--st-clr);font-size:16px;">②</div>
+          <div>
+            <div class="card-head-title">Framework de Qualificação</div>
+            <div class="card-head-sub">5 perguntas para definir o produto ideal</div>
+          </div>
+        </div>
+
+        <!-- Q1 -->
+        <div class="q-block">
+          <div class="q-head">
+            <span class="q-num">1</span>
+            A empresa já opera e tem receita?
+          </div>
+          <div class="q-body">
+            <div class="opts">
+              <label class="opt-card" onclick="selOpt(this,'q1','no')">
+                <input type="radio" name="q1" value="no">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">Não opera / Sem receita</div><div class="opt-desc">Pré-operação, MVP, ideia, sem CNPJ ou sem faturamento</div></div>
+              </label>
+              <label class="opt-card" onclick="selOpt(this,'q1','early')">
+                <input type="radio" name="q1" value="early">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">Sim, mas recente</div><div class="opt-desc">Operando há menos de 1 ano, receita inicial</div></div>
+              </label>
+              <label class="opt-card" onclick="selOpt(this,'q1','yes')">
+                <input type="radio" name="q1" value="yes">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">Sim, empresa madura</div><div class="opt-desc">Operando há 1+ anos, receita consistente</div></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="q-block">
+          <div class="q-head">
+            <span class="q-num">2</span>
+            A demanda principal tem escopo definido com prazo?
+          </div>
+          <div class="q-body">
+            <div class="opts">
+              <label class="opt-card" onclick="selOpt(this,'q2','yes')">
+                <input type="radio" name="q2" value="yes">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">Sim, projeto com início e fim</div><div class="opt-desc">1–3 entregas claras (contrato, parecer, abertura CNPJ)</div></div>
+              </label>
+              <label class="opt-card" onclick="selOpt(this,'q2','mixed')">
+                <input type="radio" name="q2" value="mixed">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">Misto</div><div class="opt-desc">Tem demanda pontual + necessidade de acompanhamento</div></div>
+              </label>
+              <label class="opt-card" onclick="selOpt(this,'q2','no')">
+                <input type="radio" name="q2" value="no">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">Não, suporte contínuo</div><div class="opt-desc">Precisa de acompanhamento jurídico recorrente</div></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="q-block">
+          <div class="q-head">
+            <span class="q-num">3</span>
+            Quantas frentes jurídicas simultâneas?
+          </div>
+          <div class="q-body">
+            <div class="opts">
+              <label class="opt-card" onclick="selOpt(this,'q3','1')">
+                <input type="radio" name="q3" value="1">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">1–2 demandas</div><div class="opt-desc">Ex: só contrato, ou só consultoria regulatória</div></div>
+              </label>
+              <label class="opt-card" onclick="selOpt(this,'q3','2')">
+                <input type="radio" name="q3" value="2">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">2–3 frentes</div><div class="opt-desc">Ex: contrato + compliance + regulatório</div></div>
+              </label>
+              <label class="opt-card" onclick="selOpt(this,'q3','4')">
+                <input type="radio" name="q3" value="4">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">4+ frentes</div><div class="opt-desc">Múltiplas áreas: societário, trabalhista, compliance, contratos, regulatório</div></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="q-block">
+          <div class="q-head">
+            <span class="q-num">4</span>
+            O problema é recorrente ou pontual?
+          </div>
+          <div class="q-body">
+            <div class="opts">
+              <label class="opt-card" onclick="selOpt(this,'q4','pont')">
+                <input type="radio" name="q4" value="pont">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">Pontual / Uma vez</div><div class="opt-desc">Resolve e não volta (abertura CNPJ, acordo de sócios)</div></div>
+              </label>
+              <label class="opt-card" onclick="selOpt(this,'q4','semi')">
+                <input type="radio" name="q4" value="semi">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">Semi-recorrente</div><div class="opt-desc">Surgem questões mensais mas não semanais</div></div>
+              </label>
+              <label class="opt-card" onclick="selOpt(this,'q4','recor')">
+                <input type="radio" name="q4" value="recor">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">Recorrente / Semanal+</div><div class="opt-desc">Questões jurídicas surgem toda semana</div></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="q-block">
+          <div class="q-head">
+            <span class="q-num">5</span>
+            Já usou a NDM antes?
+          </div>
+          <div class="q-body">
+            <div class="opts">
+              <label class="opt-card" onclick="selOpt(this,'q5','never')">
+                <input type="radio" name="q5" value="never">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">1ª vez</div><div class="opt-desc">Nunca trabalhou com a NDM</div></div>
+              </label>
+              <label class="opt-card" onclick="selOpt(this,'q5','de')">
+                <input type="radio" name="q5" value="de">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">Já fez D.E. conosco</div><div class="opt-desc">Cliente existente de demanda específica</div></div>
+              </label>
+              <label class="opt-card" onclick="selOpt(this,'q5','lost')">
+                <input type="radio" name="q5" value="lost">
+                <div class="opt-dot"></div>
+                <div><div class="opt-lbl">Lead perdido (reativação)</div><div class="opt-desc">Já recebeu proposta mas não fechou</div></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /card -->
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="toStep1()">← Voltar</button>
+        <button class="btn btn-primary" onclick="generate()">Gerar Análise →</button>
+      </div>
+    </div><!-- /step2 -->
+
+    <!-- ── STEP 3 ── RESULTADO ──────────────────────────────────── -->
+    <div id="step3" class="hidden">
+      <div id="result-area"></div>
+      <div class="btn-row" style="margin-top:12px;">
+        <button class="btn btn-secondary" onclick="toStep1()">Nova Qualificação</button>
+        <button class="btn btn-primary" onclick="copyAll()">Copiar Tudo</button>
+      </div>
+    </div><!-- /step3 -->
+
+  </div><!-- /tab-qualify -->
+
+  <!-- ╔══════════════╗ TAB: PRODUTOS ═════════════════════════════ -->
+  <div id="tab-products" class="tab-pane">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-icon" style="background:#eef3fb;font-size:16px;">§</div>
+        <div>
+          <div class="card-head-title">Tabela de Produtos NDM</div>
+          <div class="card-head-sub">Referência completa de pricing</div>
+        </div>
+      </div>
+
+      <div class="prod-section-title">Demanda Específica · Pontual</div>
+      <div class="prod-row"><span class="prod-name">Consultoria de 1h</span><span class="prod-price">R$ 500</span><span class="prod-type">Pontual</span></div>
+      <div class="prod-row"><span class="prod-name">Elaboração / Revisão de Contrato</span><span class="prod-price">R$ 2.000 – 8.000</span><span class="prod-type">Pontual</span></div>
+      <div class="prod-row"><span class="prod-name">Termos de Uso + LGPD</span><span class="prod-price">R$ 3.000 – 5.000</span><span class="prod-type">Pontual</span></div>
+      <div class="prod-row"><span class="prod-name">Parecer Jurídico</span><span class="prod-price">R$ 2.000 – 5.000</span><span class="prod-type">Pontual</span></div>
+      <div class="prod-row"><span class="prod-name">Acordo de Sócios</span><span class="prod-price">R$ 3.000 – 6.000</span><span class="prod-type">Pontual</span></div>
+      <div class="prod-row"><span class="prod-name">Abertura CNPJ + Contrato Social</span><span class="prod-price">R$ 2.000 – 4.000</span><span class="prod-type">Pontual</span></div>
+      <div class="prod-row"><span class="prod-name">Registro de Marca</span><span class="prod-price">R$ 1.500 – 3.000</span><span class="prod-type">Pontual</span></div>
+      <div class="prod-row"><span class="prod-name">Consultoria em Fintech</span><span class="prod-price">R$ 15.000 – 27.000</span><span class="prod-type">Projeto</span></div>
+      <div class="prod-row"><span class="prod-name">Subadquirente / BACEN</span><span class="prod-price">R$ 20.000 – 105.000</span><span class="prod-type">Projeto</span></div>
+
+      <div class="prod-section-title" style="background:var(--st-clr);">Assessoria Starter</div>
+      <div class="prod-row"><span class="prod-name">Assessoria Starter (3–6 meses)</span><span class="prod-price">R$ 1.000 – 1.500/mês</span><span class="prod-type">Recorrente</span></div>
+
+      <div class="prod-section-title" style="background:var(--fu-clr);">Assessoria Full</div>
+      <div class="prod-row"><span class="prod-name">Assessoria Full (anual)</span><span class="prod-price">R$ 1.800+/mês</span><span class="prod-type">Recorrente</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-icon" style="background:#fdf7e8;font-size:16px;">★</div>
+        <div>
+          <div class="card-head-title">Regras de Ouro</div>
+          <div class="card-head-sub">Princípios de abordagem comercial</div>
+        </div>
+      </div>
+
+      <div class="rule-card">
+        <div class="rule-dot"></div>
+        <div><div class="rule-title">Preço é proxy</div><div class="rule-body">Quando o lead diz "é caro", está dizendo "caro para o que preciso agora". A resposta não é desconto — é o produto certo.</div></div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-dot"></div>
+        <div><div class="rule-title">Nunca assessoria na 1ª abordagem para perfil D.E.</div><div class="rule-body">Isso gera o mesmo atrito que causa 60% das perdas. Ofereça D.E. primeiro, sempre.</div></div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-dot"></div>
+        <div><div class="rule-title">Padrão bimodal de startups</div><div class="rule-body">Fase 1 (pré-operação) = estruturação = D.E. | Fase 2 (pós-operação com receita) = Starter ou Full.</div></div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-dot"></div>
+        <div><div class="rule-title">Escada de comprometimento</div><div class="rule-body">D.E. → Starter → Full. Cada passo deve ser fácil. Não peça salto.</div></div>
+      </div>
+      <div class="rule-card">
+        <div class="rule-dot"></div>
+        <div><div class="rule-title">Específico bate genérico</div><div class="rule-body">Use o nome, o setor e a necessidade original do lead. Mensagens genéricas são ignoradas.</div></div>
+      </div>
+    </div>
+  </div><!-- /tab-products -->
+
+  <!-- ╔══════════════╗ TAB: HISTÓRICO ════════════════════════════ -->
+  <div id="tab-history" class="tab-pane">
+    <div class="card">
+      <div class="card-head">
+        <div class="card-head-icon" style="background:var(--cream);font-size:16px;">⏱</div>
+        <div>
+          <div class="card-head-title">Qualificações Anteriores</div>
+          <div class="card-head-sub">Salvas localmente no navegador</div>
+        </div>
+      </div>
+      <div id="hist-list"></div>
+    </div>
+    <button class="btn btn-secondary" style="width:100%" onclick="clearHist()">Limpar Histórico</button>
+  </div><!-- /tab-history -->
+
+</div><!-- /shell -->
+
+<!-- ═════════════════════════════ JS ══════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── TAB SWITCHING ───────────────────────────────────────────── */
+function goTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('tab-' + id).classList.add('on');
+  btn.classList.add('on');
+  if (id === 'history') renderHist();
+}
+
+/* ── STEPPER ─────────────────────────────────────────────────── */
+function setStepper(active) {
+  for (let i = 1; i <= 3; i++) {
+    const s = document.getElementById('stp' + i);
+    s.classList.remove('on', 'done');
+    if (i < active) { s.classList.add('done'); s.querySelector('.stp-n').textContent = '✓'; }
+    else if (i === active) { s.classList.add('on'); s.querySelector('.stp-n').textContent = i; }
+    else { s.querySelector('.stp-n').textContent = i; }
+  }
+  for (let i = 1; i <= 2; i++) {
+    document.getElementById('ln' + i).classList.toggle('done', i < active);
+  }
+}
+
+/* ── OPTION CARDS ────────────────────────────────────────────── */
+function selOpt(card, name, val) {
+  document.querySelectorAll('.opt-card').forEach(c => {
+    if (c.querySelector('input[name="' + name + '"]')) c.classList.remove('sel');
+  });
+  card.classList.add('sel');
+  card.querySelector('input').checked = true;
+}
+
+/* ── STEP NAVIGATION ─────────────────────────────────────────── */
+function toStep1() {
+  ['step1','step2','step3'].forEach(id => document.getElementById(id).classList.toggle('hidden', id !== 'step1'));
+  setStepper(1);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function toStep2() {
+  const name = document.getElementById('f-name').value.trim();
+  const ctx  = document.getElementById('f-ctx').value.trim();
+  if (!name || !ctx) { alert('Preencha o nome do contato e o contexto do lead.'); return; }
+  ['step1','step2','step3'].forEach(id => document.getElementById(id).classList.toggle('hidden', id !== 'step2'));
+  setStepper(2);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── DETECT DEMAND FROM CONTEXT ──────────────────────────────── */
+function detectDemand(ctx) {
+  const c = ctx.toLowerCase();
+  if (c.includes('bacen') || c.includes('subadquirente') || c.includes('subcredenciador')) return { label: 'a autorização BACEN / subadquirente', key: 'bacen' };
+  if (c.includes('fintech') || c.includes('pagamento') || c.includes('processamento')) return { label: 'a estruturação da operação de pagamentos', key: 'fintech' };
+  if (c.includes('lgpd') || c.includes('termo de uso') || c.includes('política de privacidade')) return { label: 'os Termos de Uso e adequação LGPD', key: 'lgpd' };
+  if (c.includes('acordo de') || c.includes('acordo social') || c.includes('societário') || c.includes('sócio')) return { label: 'a estruturação societária', key: 'socio' };
+  if (c.includes('cnpj') || c.includes('abertura') || c.includes('contrato social')) return { label: 'a abertura e estruturação da empresa', key: 'cnpj' };
+  if (c.includes('marca') || c.includes('registro de marca')) return { label: 'o registro de marca', key: 'marca' };
+  if (c.includes('compliance') || c.includes('pld')) return { label: 'a estruturação de compliance', key: 'compliance' };
+  if (c.includes('trabalhist') || c.includes('clt') || c.includes('funcionário')) return { label: 'a questão trabalhista', key: 'trabalhista' };
+  if (c.includes('contrato') || c.includes('revisão') || c.includes('elaboração')) return { label: 'a elaboração/revisão de contrato', key: 'contrato' };
+  if (c.includes('parecer') || c.includes('opinião legal')) return { label: 'o parecer jurídico', key: 'parecer' };
+  if (c.includes('consultoria')) return { label: 'a consultoria jurídica', key: 'consultoria' };
+  return { label: 'a demanda jurídica mencionada', key: 'geral' };
+}
+
+function suggestProduct(demandKey, ctx) {
+  const c = ctx.toLowerCase();
+  switch(demandKey) {
+    case 'bacen': return 'Subadquirente / BACEN: R$ 20.000 – 105.000';
+    case 'fintech': return 'Consultoria em Fintech: R$ 15.000 – 27.000';
+    case 'lgpd': return 'Termos de Uso + LGPD: R$ 3.000 – 5.000';
+    case 'socio': return 'Acordo de Sócios: R$ 3.000 – 6.000';
+    case 'cnpj': return 'Abertura CNPJ + Contrato Social: R$ 2.000 – 4.000';
+    case 'marca': return 'Registro de Marca: R$ 1.500 – 3.000';
+    case 'contrato': return 'Elaboração/Revisão de Contrato: R$ 2.000 – 8.000';
+    case 'parecer': return 'Parecer Jurídico: R$ 2.000 – 5.000';
+    case 'consultoria': return 'Consultoria de 1h: R$ 500';
+    default: return 'Consultoria de 1h: R$ 500 (porta de entrada ideal)';
+  }
+}
+
+/* ── CLASSIFY ────────────────────────────────────────────────── */
+function classify() {
+  const get = name => { const el = document.querySelector('input[name="' + name + '"]:checked'); return el ? el.value : null; };
+  const q = { q1: get('q1'), q2: get('q2'), q3: get('q3'), q4: get('q4'), q5: get('q5') };
+
+  let score = 0;
+  const signals = [];
+
+  // Q1
+  if (q.q1 === 'no')    { score += 0; signals.push({ q: 'Empresa opera?', ans: 'Não opera / Pré-operação', sig: 'de', note: 'Padrão bimodal Fase 1 → D.E.' }); }
+  else if (q.q1 === 'early') { score += 1; signals.push({ q: 'Empresa opera?', ans: 'Sim, recente', sig: 'st', note: 'Empresa em início → candidata a Starter' }); }
+  else if (q.q1 === 'yes')   { score += 2; signals.push({ q: 'Empresa opera?', ans: 'Sim, madura', sig: 'fu', note: 'Empresa madura → Starter ou Full' }); }
+
+  // Q2
+  if (q.q2 === 'yes')   { score += 0; signals.push({ q: 'Escopo definido?', ans: 'Projeto com início/fim', sig: 'de', note: 'Demanda pontual clássica' }); }
+  else if (q.q2 === 'mixed') { score += 1; signals.push({ q: 'Escopo definido?', ans: 'Misto', sig: 'st', note: 'Pontual + acompanhamento → Starter' }); }
+  else if (q.q2 === 'no')    { score += 2; signals.push({ q: 'Escopo definido?', ans: 'Suporte contínuo', sig: 'fu', note: 'Necessidade recorrente confirmada' }); }
+
+  // Q3
+  if (q.q3 === '1')  { score += 0; signals.push({ q: 'Frentes jurídicas?', ans: '1–2 demandas', sig: 'de', note: 'Escopo limitado → D.E.' }); }
+  else if (q.q3 === '2') { score += 1; signals.push({ q: 'Frentes jurídicas?', ans: '2–3 frentes', sig: 'st', note: 'Múltiplas mas gerenciáveis → Starter' }); }
+  else if (q.q3 === '4') { score += 2; signals.push({ q: 'Frentes jurídicas?', ans: '4+ frentes', sig: 'fu', note: 'Alta complexidade → Full' }); }
+
+  // Q4
+  if (q.q4 === 'pont')  { score += 0; signals.push({ q: 'Recorrência?', ans: 'Pontual', sig: 'de', note: 'Resolve e encerra' }); }
+  else if (q.q4 === 'semi')  { score += 1; signals.push({ q: 'Recorrência?', ans: 'Semi-recorrente', sig: 'st', note: 'Mensal mas não semanal → Starter' }); }
+  else if (q.q4 === 'recor') { score += 2; signals.push({ q: 'Recorrência?', ans: 'Semanal+', sig: 'fu', note: 'Alta frequência confirma Full' }); }
+
+  // Q5
+  if (q.q5 === 'never') {
+    signals.push({ q: 'Histórico NDM?', ans: '1ª vez', sig: 'de', note: 'D.E. como porta de entrada (escada de comprometimento)' });
+    if (score <= 4) score = Math.max(0, score - 1);
+  } else if (q.q5 === 'de') {
+    signals.push({ q: 'Histórico NDM?', ans: 'Já fez D.E.', sig: 'st', note: 'Oportunidade natural de upgrade para Starter' });
+    score += 1;
+  } else if (q.q5 === 'lost') {
+    signals.push({ q: 'Histórico NDM?', ans: 'Lead perdido', sig: 'de', note: 'Reativar com D.E. — nunca assessoria na 1ª abordagem' });
+  }
+
+  // Classification
+  let cls, label, badgeCls, desc, pricing, upsell;
+  if (score <= 2) {
+    cls = 'de'; label = 'Demanda Específica'; badgeCls = 'badge-de';
+    desc = 'Perfil pontual. O lead tem uma necessidade específica com início e fim. Ofereça o produto de D.E. adequado, sem mencionar assessoria na primeira abordagem.';
+    pricing = null; // will be set by demand detection
+    upsell = ['de'];
+  } else if (score <= 5) {
+    cls = 'st'; label = 'Assessoria Starter'; badgeCls = 'badge-st';
+    desc = 'Perfil de transição. O lead tem demandas semi-recorrentes ou está migrando de projeto para operação contínua. Starter (R$1.000–1.500/mês, 3–6 meses) é o encaixe ideal sem exigir compromisso anual.';
+    pricing = 'R$ 1.000 – 1.500 / mês · Compromisso de 3 a 6 meses · Sem contrato anual';
+    upsell = ['de', 'st'];
+  } else {
+    cls = 'fu'; label = 'Assessoria Full'; badgeCls = 'badge-fu';
+    desc = 'Perfil de assessoria completa: empresa madura, múltiplas frentes jurídicas, demanda recorrente semanal. Full (R$1.800+/mês, anual) é o produto ideal.';
+    pricing = 'A partir de R$ 1.800 / mês · Contrato anual · Cobertura multidisciplinar';
+    upsell = ['de', 'st', 'fu'];
+  }
+
+  // Reactivation profile
+  let reactProfile = null;
+  if (q.q5 === 'lost') {
+    if (score <= 2) {
+      reactProfile = {
+        label: 'Perfil A · Demanda Pontual Mal Direcionada',
+        strategy: 'Chegou com uma necessidade específica, recebeu proposta de assessoria, desapareceu. Reativar oferecendo diretamente a D.E. que ele precisava desde o início. Nunca mencionar assessoria na 1ª mensagem.'
+      };
+    } else if (q.q1 === 'no' || q.q1 === 'early') {
+      reactProfile = {
+        label: 'Perfil B · Startup Aguardando Timing',
+        strategy: 'MVP ou empresa em estágio inicial sem budget para mensalidade. Reativar perguntando sobre a evolução do projeto e oferecendo pacote de estruturação com escopo fechado e valor acessível.'
+      };
+    } else {
+      reactProfile = {
+        label: 'Perfil C · Proposta Inadequada / Preço',
+        strategy: 'Considerou mas achou desproporcional. Reativar apresentando as 3 opções escalonadas: D.E. pontual → Starter 3–6 meses → Full anual. "Preço é proxy": não baixar preço, mostrar produto certo.'
+      };
+    }
+  }
+
+  return { cls, label, badgeCls, desc, pricing, upsell, signals, score, reactProfile, q };
+}
+
+/* ── GENERATE APPROACH TEXTS ─────────────────────────────────── */
+function makeTexts(result, name, ctx) {
+  const firstName = name.split(' ')[0];
+  const demand    = detectDemand(ctx);
+  const demLabel  = demand.label;
+  const q5 = result.q.q5;
+
+  let wa = '', em = '';
+
+  if (result.cls === 'de') {
+    if (q5 === 'lost') {
+      if (result.reactProfile && result.reactProfile.label.includes('Perfil A')) {
+        wa = `Oi ${firstName}! Tudo bem?\n\nLembrei que conversamos sobre ${demLabel}. A NDM estruturou um formato enxuto exatamente para esse tipo de demanda — escopo fechado, prazo definido, valor combinado. Sem mensalidade.\n\nSe ainda fizer sentido, consigo te mandar os detalhes em minutos. Sem compromisso!`;
+        em = `Olá ${firstName},\n\nEspero que esteja bem!\n\nEstou retomando o contato porque lembrei de ${demLabel} que você mencionou na nossa conversa.\n\nDesde então, estruturamos um formato mais direto para esse tipo de necessidade:\n\n→ Escopo fechado e prazo definido\n→ Valor pré-combinado, sem mensalidade\n→ Entrega clara — você sabe exatamente o que recebe\n\nSe a demanda ainda existir, posso enviar uma proposta personalizada em 24h.\n\nAbraços,\n[Seu nome] | NDM Advogados`;
+      } else if (result.reactProfile && result.reactProfile.label.includes('Perfil B')) {
+        wa = `Oi ${firstName}! Como está o projeto? Avançou desde a última vez que conversamos?\n\nTemos ajudado startups no mesmo estágio com um pacote de estruturação jurídica bem objetivo — tudo que você precisa para sair do papel, sem mensalidade.\n\nSe quiser, te mostro o que inclui.`;
+        em = `Olá ${firstName},\n\nPassou um tempo desde nossa conversa e fiquei curioso para saber como está o andamento do projeto.\n\nCriamos um Pacote Startup Essencial pensado para esse momento:\n\n→ Acordo de sócios + Contrato social\n→ Termos de uso + Política de privacidade\n→ 1h de consultoria estratégica\n\nValor fechado, entrega em até 15 dias úteis, sem mensalidade.\n\nSe fizer sentido, responde aqui e agendo uma conversa rápida.\n\nAbraços,\n[Seu nome] | NDM Advogados`;
+      } else {
+        wa = `Oi ${firstName}! A NDM reformulou as opções de serviço. Agora temos desde R$500 (pontual) até assessoria completa, com 3 degraus claros.\n\nPosso te mostrar qual encaixa melhor no momento atual?`;
+        em = `Olá ${firstName},\n\nGostaria de compartilhar uma novidade da NDM. Reformulamos nossas opções para atender diferentes momentos das empresas:\n\n① Demanda Específica — pontual, a partir de R$ 500\n② Assessoria Starter — R$ 1.000–1.500/mês, 3 a 6 meses\n③ Assessoria Full — R$ 1.800+/mês, anual\n\nCada formato tem um perfil diferente, e um deles se encaixa perfeitamente no momento atual. Podemos conversar 15 minutos para eu mapear o melhor caminho?\n\nAbraços,\n[Seu nome] | NDM Advogados`;
+      }
+    } else {
+      wa = `Oi ${firstName}! Prazer, sou [Seu nome] da NDM Advogados.\n\nEntendi que você precisa de apoio com ${demLabel}. Temos um formato bem direto para isso: escopo fechado, prazo definido, valor pré-combinado. Sem mensalidade.\n\nPosso te explicar como funciona em 10 minutos?`;
+      em = `Olá ${firstName},\n\nPrazer em falar com você!\n\nAnalisei a sua necessidade sobre ${demLabel} e o formato ideal é um projeto pontual com:\n\n→ Escopo fechado e entregas definidas\n→ Prazo claro de execução\n→ Valor pré-combinado, sem mensalidade\n\nA NDM é especializada em tecnologia, fintechs e startups — esse tipo de demanda é o nosso dia a dia.\n\nPodemos agendar uma conversa rápida para alinhar os detalhes e eu enviar a proposta?\n\nAbraços,\n[Seu nome] | NDM Advogados`;
+    }
+  } else if (result.cls === 'st') {
+    wa = `Oi ${firstName}! Prazer, sou [Seu nome] da NDM Advogados.\n\nPelo que entendi da sua situação, você precisa de acompanhamento jurídico contínuo mas talvez sem o compromisso de um contrato anual, certo?\n\nTemos a Assessoria Starter: R$ 1.000–1.500/mês, compromisso de 3 a 6 meses, suporte contínuo. É a ponte perfeita para quem está nesse momento.\n\nPosso te explicar como funciona?`;
+    em = `Olá ${firstName},\n\nPrazer em falar com você!\n\nAnalisando a sua situação, identifiquei que o formato ideal é nossa Assessoria Starter:\n\n→ Acompanhamento jurídico contínuo\n→ R$ 1.000 a 1.500/mês\n→ Compromisso de 3 a 6 meses (sem contrato anual)\n→ Ideal para empresas com demandas recorrentes em crescimento\n\nEsse formato foi pensado exatamente para empresas no seu momento: já tem operação, surgem questões jurídicas com frequência, mas ainda não justifica uma assessoria completa.\n\nPodemos conversar para desenhar o escopo ideal?\n\nAbraços,\n[Seu nome] | NDM Advogados`;
+  } else {
+    wa = `Oi ${firstName}! Prazer, sou [Seu nome] da NDM Advogados.\n\nPelo perfil da sua operação, você precisa de um suporte jurídico completo e recorrente. Somos especializados exatamente nesse tipo de empresa: tecnologia, fintechs, pagamentos.\n\nNossa Assessoria Full cobre todas as frentes — regulatório, compliance, contratos, trabalhista — por um valor fixo mensal.\n\nPosso apresentar como funciona na prática?`;
+    em = `Olá ${firstName},\n\nPrazer em falar com você!\n\nPelo cenário que identifiquei, a sua operação demanda suporte jurídico multidisciplinar e recorrente. Nossa Assessoria Full é ideal para esse perfil:\n\n→ Cobertura completa: regulatório, compliance, contratos, trabalhista, societário\n→ Time dedicado especializado em tecnologia e fintechs\n→ Valor fixo mensal a partir de R$ 1.800\n→ Contrato anual com previsibilidade total\n\nAtendemos empresas como a sua com questões que vão desde compliance PLD até chargebacks e contratos com parceiros.\n\nGostaria de agendar uma conversa para mapear todas as frentes jurídicas?\n\nAbraços,\n[Seu nome] | NDM Advogados`;
+  }
+
+  return { wa, em };
+}
+
+/* ── BUILD RESULT HTML ───────────────────────────────────────── */
+function generate() {
+  const missing = ['q1','q2','q3','q4','q5'].filter(q => !document.querySelector('input[name="' + q + '"]:checked'));
+  if (missing.length) { alert('Responda todas as 5 perguntas. Faltam: ' + missing.length); return; }
+
+  const result = classify();
+  const name   = document.getElementById('f-name').value.trim();
+  const ctx    = document.getElementById('f-ctx').value.trim();
+  const source = document.getElementById('f-source').value;
+  const texts  = makeTexts(result, name, ctx);
+  const demand = detectDemand(ctx);
+  const pct    = Math.min(100, Math.round((result.score / 9) * 100));
+
+  // Upsell path HTML
+  const steps = [
+    { key: 'de', label: 'D.E.', cls: 'u-de' },
+    { key: 'st', label: 'Starter', cls: 'u-st' },
+    { key: 'fu', label: 'Full', cls: 'u-fu' }
+  ];
+  const active = result.upsell[result.upsell.length - 1];
+  let upsellHtml = '<div class="upsell-path">';
+  steps.forEach((s, i) => {
+    const isActive = s.key === result.cls;
+    upsellHtml += `<span class="upsell-step ${s.cls}${isActive ? ' u-active' : ''}">${s.label}</span>`;
+    if (i < 2) upsellHtml += '<span class="upsell-arrow">›</span>';
+  });
+  upsellHtml += '</div>';
+
+  const upsellDesc = result.cls === 'de'
+    ? 'Após concluir a D.E., monitorar se surgem novas demandas. Se sim, propor Starter como próximo passo natural.'
+    : result.cls === 'st'
+    ? 'Nos meses 4–5 do Starter, demonstrar valor com entregas proativas e propor migração para Full com desconto de fidelidade.'
+    : 'Foco em retenção, expansão de escopo e aumento de ticket conforme o crescimento do cliente.';
+
+  const pricing = result.pricing || suggestProduct(demand.key, ctx);
+
+  let html = `
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:4px;">
+      <div>
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:700;font-family:'Trebuchet MS',sans-serif;">Resultado · Qualificação</div>
+        <div style="font-size:1.3rem;font-weight:700;color:var(--navy);margin-top:4px;">${name}</div>
+        ${source ? `<div style="font-size:11px;color:var(--muted);font-family:'Trebuchet MS',sans-serif;margin-top:2px;">via ${source}</div>` : ''}
+      </div>
+      <span class="res-badge ${result.badgeCls}">${result.label}</span>
+    </div>
+
+    <div class="score-wrap">
+      <div class="score-labels"><span>D.E.</span><span>Starter</span><span>Full</span></div>
+      <div class="score-bar"><div class="score-fill" id="sfill" style="width:0%"></div></div>
+    </div>
+
+    <p style="font-size:13px;color:#2a2a3e;line-height:1.55;">${result.desc}</p>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-icon" style="background:#fdf7e8;font-size:14px;">⊞</div>
+      <div><div class="card-head-title">Framework de Qualificação</div></div>
+    </div>
+    <table class="fw-table">
+      <thead><tr><th>#</th><th>Pergunta</th><th>Resposta</th><th>Sinal</th></tr></thead>
+      <tbody>
+        ${result.signals.map((s, i) => `
+          <tr>
+            <td><strong>${i+1}</strong></td>
+            <td>${s.q}</td>
+            <td>${s.ans}</td>
+            <td class="sig-${s.sig}">${s.note}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-icon" style="background:${result.cls==='de'?'var(--de-bg)':result.cls==='st'?'var(--st-bg)':'var(--fu-bg)'};font-size:14px;">$</div>
+      <div><div class="card-head-title">Recomendação: ${result.label}</div></div>
+    </div>
+
+    <div class="res-sec">
+      <div class="res-sec-title">Produto & Pricing</div>
+      <div class="res-sec-body" style="font-weight:600;">${pricing}</div>
+    </div>
+
+    <div class="res-sec">
+      <div class="res-sec-title">Caminho de Upsell</div>
+      ${upsellHtml}
+      <div class="res-sec-body" style="margin-top:6px;">${upsellDesc}</div>
+    </div>
+
+    ${result.reactProfile ? `
+    <div class="react-alert">
+      <div class="react-alert-label">⚠ ${result.reactProfile.label}</div>
+      <div class="react-alert-body">${result.reactProfile.strategy}</div>
+    </div>
+    ` : ''}
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-icon" style="background:#e8f7ef;font-size:14px;">✉</div>
+      <div><div class="card-head-title">Texto de Abordagem — WhatsApp</div></div>
+    </div>
+    <div class="copy-wrap">
+      <button class="btn-copy" onclick="copyEl(this,'wa-text')">Copiar</button>
+      <pre id="wa-text">${texts.wa}</pre>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="card-head-icon" style="background:#eef3fb;font-size:14px;">@</div>
+      <div><div class="card-head-title">Texto de Abordagem — E-mail</div></div>
+    </div>
+    <div class="copy-wrap">
+      <button class="btn-copy" onclick="copyEl(this,'em-text')">Copiar</button>
+      <pre id="em-text">${texts.em}</pre>
+    </div>
+  </div>`;
+
+  document.getElementById('result-area').innerHTML = html;
+  ['step1','step2','step3'].forEach(id => document.getElementById(id).classList.toggle('hidden', id !== 'step3'));
+  setStepper(3);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(() => { const sf = document.getElementById('sfill'); if (sf) sf.style.width = pct + '%'; }, 80);
+
+  // Save
+  saveHist({ name, source, ctx, cls: result.cls, label: result.label, badgeCls: result.badgeCls, pricing, wa: texts.wa, em: texts.em, date: new Date().toISOString() });
+}
+
+/* ── COPY ────────────────────────────────────────────────────── */
+function copyEl(btn, id) {
+  const txt = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    btn.textContent = 'Copiado ✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  }).catch(() => { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); btn.textContent = 'Copiado ✓'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000); });
+}
+function copyAll() {
+  const wa = document.getElementById('wa-text') ? document.getElementById('wa-text').textContent : '';
+  const em = document.getElementById('em-text') ? document.getElementById('em-text').textContent : '';
+  const all = '=== WHATSAPP ===\n\n' + wa + '\n\n=== E-MAIL ===\n\n' + em;
+  navigator.clipboard.writeText(all).then(() => alert('Textos copiados!')).catch(() => {});
+}
+
+/* ── HISTORY ─────────────────────────────────────────────────── */
+function saveHist(entry) {
+  const h = JSON.parse(localStorage.getItem('ndm-ql-hist') || '[]');
+  h.unshift(entry);
+  if (h.length > 60) h.pop();
+  localStorage.setItem('ndm-ql-hist', JSON.stringify(h));
+}
+function renderHist() {
+  const h = JSON.parse(localStorage.getItem('ndm-ql-hist') || '[]');
+  const el = document.getElementById('hist-list');
+  if (!h.length) { el.innerHTML = '<div class="hist-empty"><strong>Nenhuma qualificação ainda</strong>As análises serão salvas aqui automaticamente.</div>'; return; }
+  el.innerHTML = h.map((e, i) => {
+    const d = new Date(e.date);
+    const ds = d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    return `<div class="hist-item" onclick="loadHist(${i})">
+      <div><div class="hist-name">${e.name}</div><div class="hist-meta">${ds}${e.source ? ' · ' + e.source : ''}</div></div>
+      <span class="res-badge ${e.badgeCls}" style="font-size:10px;padding:4px 10px;">${e.label}</span>
+    </div>`;
+  }).join('');
+}
+function loadHist(i) {
+  const h = JSON.parse(localStorage.getItem('ndm-ql-hist') || '[]');
+  const e = h[i]; if (!e) return;
+  const html = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:700;font-family:'Trebuchet MS',sans-serif;">Qualificação Salva · ${new Date(e.date).toLocaleDateString('pt-BR')}</div>
+          <div style="font-size:1.3rem;font-weight:700;color:var(--navy);margin-top:4px;">${e.name}</div>
+        </div>
+        <span class="res-badge ${e.badgeCls}">${e.label}</span>
+      </div>
+      <div class="sep"></div>
+      <div class="res-sec"><div class="res-sec-title">Contexto</div><div class="res-sec-body">${e.ctx}</div></div>
+      <div class="res-sec"><div class="res-sec-title">Produto & Pricing</div><div class="res-sec-body" style="font-weight:600;">${e.pricing}</div></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-head-icon" style="background:#e8f7ef;font-size:14px;">✉</div><div><div class="card-head-title">WhatsApp</div></div></div>
+      <div class="copy-wrap"><button class="btn-copy" onclick="copyEl(this,'hw-${i}')">Copiar</button><pre id="hw-${i}">${e.wa}</pre></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div class="card-head-icon" style="background:#eef3fb;font-size:14px;">@</div><div><div class="card-head-title">E-mail</div></div></div>
+      <div class="copy-wrap"><button class="btn-copy" onclick="copyEl(this,'he-${i}')">Copiar</button><pre id="he-${i}">${e.em}</pre></div>
+    </div>`;
+  document.getElementById('result-area').innerHTML = html;
+  ['step1','step2','step3'].forEach(id => document.getElementById(id).classList.toggle('hidden', id !== 'step3'));
+  setStepper(3);
+  // Switch to qualify tab
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+  document.getElementById('tab-qualify').classList.add('on');
+  document.querySelectorAll('.tab-btn')[0].classList.add('on');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+function clearHist() {
+  if (confirm('Limpar todo o histórico de qualificações?')) { localStorage.removeItem('ndm-ql-hist'); renderHist(); }
+}
+</script>
+</body>
+</html>
