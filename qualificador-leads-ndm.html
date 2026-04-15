@@ -965,7 +965,6 @@ function generate() {
   const name   = document.getElementById('f-name').value.trim();
   const ctx    = document.getElementById('f-ctx').value.trim();
   const source = document.getElementById('f-source').value;
-  const texts  = makeTexts(result, name, ctx);
   const demand = detectDemand(ctx);
   const pct    = Math.min(100, Math.round((result.score / 9) * 100));
 
@@ -1056,27 +1055,7 @@ function generate() {
     ` : ''}
   </div>
 
-  <div class="card">
-    <div class="card-head">
-      <div class="card-head-icon" style="background:#e8f7ef;font-size:14px;">✉</div>
-      <div><div class="card-head-title">Texto de Abordagem — WhatsApp</div></div>
-    </div>
-    <div class="copy-wrap">
-      <button class="btn-copy" onclick="copyEl(this,'wa-text')">Copiar</button>
-      <pre id="wa-text">${texts.wa}</pre>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-head">
-      <div class="card-head-icon" style="background:#eef3fb;font-size:14px;">@</div>
-      <div><div class="card-head-title">Texto de Abordagem — E-mail</div></div>
-    </div>
-    <div class="copy-wrap">
-      <button class="btn-copy" onclick="copyEl(this,'em-text')">Copiar</button>
-      <pre id="em-text">${texts.em}</pre>
-    </div>
-  </div>`;
+  `;
 
   document.getElementById('result-area').innerHTML = html;
   ['step1','step2','step3'].forEach(id => document.getElementById(id).classList.toggle('hidden', id !== 'step3'));
@@ -1085,7 +1064,7 @@ function generate() {
   setTimeout(() => { const sf = document.getElementById('sfill'); if (sf) sf.style.width = pct + '%'; }, 80);
 
   // Save
-  saveHist({ name, source, ctx, cls: result.cls, label: result.label, badgeCls: result.badgeCls, pricing, wa: texts.wa, em: texts.em, date: new Date().toISOString() });
+  saveHist({ name, source, ctx, cls: result.cls, label: result.label, badgeCls: result.badgeCls, pricing, date: new Date().toISOString() });
 }
 
 /* ── COPY ────────────────────────────────────────────────────── */
@@ -1097,10 +1076,8 @@ function copyEl(btn, id) {
   }).catch(() => { const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); btn.textContent = 'Copiado ✓'; btn.classList.add('copied'); setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000); });
 }
 function copyAll() {
-  const wa = document.getElementById('wa-text') ? document.getElementById('wa-text').textContent : '';
-  const em = document.getElementById('em-text') ? document.getElementById('em-text').textContent : '';
-  const all = '=== WHATSAPP ===\n\n' + wa + '\n\n=== E-MAIL ===\n\n' + em;
-  navigator.clipboard.writeText(all).then(() => alert('Textos copiados!')).catch(() => {});
+  const area = document.getElementById('result-area');
+  if (area) navigator.clipboard.writeText(area.innerText).then(() => alert('Análise copiada!')).catch(() => {});
 }
 
 /* ── HISTORY ─────────────────────────────────────────────────── */
@@ -1138,14 +1115,6 @@ function loadHist(i) {
       <div class="sep"></div>
       <div class="res-sec"><div class="res-sec-title">Contexto</div><div class="res-sec-body">${e.ctx}</div></div>
       <div class="res-sec"><div class="res-sec-title">Produto & Pricing</div><div class="res-sec-body" style="font-weight:600;">${e.pricing}</div></div>
-    </div>
-    <div class="card">
-      <div class="card-head"><div class="card-head-icon" style="background:#e8f7ef;font-size:14px;">✉</div><div><div class="card-head-title">WhatsApp</div></div></div>
-      <div class="copy-wrap"><button class="btn-copy" onclick="copyEl(this,'hw-${i}')">Copiar</button><pre id="hw-${i}">${e.wa}</pre></div>
-    </div>
-    <div class="card">
-      <div class="card-head"><div class="card-head-icon" style="background:#eef3fb;font-size:14px;">@</div><div><div class="card-head-title">E-mail</div></div></div>
-      <div class="copy-wrap"><button class="btn-copy" onclick="copyEl(this,'he-${i}')">Copiar</button><pre id="he-${i}">${e.em}</pre></div>
     </div>`;
   document.getElementById('result-area').innerHTML = html;
   ['step1','step2','step3'].forEach(id => document.getElementById(id).classList.toggle('hidden', id !== 'step3'));
